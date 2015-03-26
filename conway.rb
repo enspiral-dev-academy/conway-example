@@ -8,40 +8,27 @@ class Conway
     @directions = [ [-1,-1], [-1, 0], [-1, 1], [ 0,-1], [ 0, 1], [ 1,-1], [ 1, 0], [ 1, 1] ]
   end
 
+  def cell(r,c)
+    @grid[r][c]
+  end
+
   def update_cells!
-    @grid.each_with_index do |row,r|
-      row.each_index do |c|
-        update_cell!(r,c)
-      end
-    end
+    @grid.each_with_index { |row,r| row.each_index { |c| update_cell!(r,c) } }
   end
 
   def update_cell!(r,c)
-
-    if alive?(r,c) && (underpopulated?(r,c) || overpopulated?(r,c))
-      @grid[r][c].alive = false
-    end
-
-    if !alive?(r,c) && resurrectable?(r,c)
-      @grid[r][c].alive = true
-    end
-
+    cell(r,c).kill! if alive?(r,c) && (underpopulated?(r,c) || overpopulated?(r,c))
+    cell(r,c).resurrect! if !alive?(r,c) && resurrectable?(r,c)
   end
 
   def tally_neighbors!
-    @grid.each_with_index do |row, r|
-      row.each_index do |c|
-        tally_neighbors_for!(r,c)
-      end
-    end
+    @grid.each_with_index { |row, r| row.each_index { |c| tally_neighbors_for!(r,c) } }
   end
 
   def tally_neighbors_for!(r,c)
-    @grid[r][c].neighbors = 0
+    cell(r,c).neighbors = 0
     @directions.each do |i,j|
-      if in_bounds?(r + i, c + j) && alive?(r + i, c + j)
-        @grid[r][c].neighbors += 1
-      end
+      cell(r,c).neighbors += 1 if in_bounds?(r + i, c + j) && alive?(r + i, c + j)
     end
   end
 
@@ -50,25 +37,25 @@ class Conway
   end
 
   def alive?(r,c)
-    @grid[r][c].alive
+    cell(r,c).alive
   end
 
   def overpopulated?(r,c)
-    @grid[r][c].neighbors > 3
+    cell(r,c).neighbors > 3
   end
 
   def underpopulated?(r,c)
-    @grid[r][c].neighbors < 2
+    cell(r,c).neighbors < 2
   end
 
   def resurrectable?(r,c)
-    @grid[r][c].neighbors == 3 && !alive?(r,c)
+    cell(r,c).neighbors == 3 && !alive?(r,c)
   end
 
   def show
     system('clear')
     @grid.each do |row|
-      row.each { |cell| print cell.alive ? "X|" : " |" }
+      row.each { |box| print box.alive ? "X|" : " |" }
       puts
     end
   end
@@ -81,5 +68,5 @@ loop do
   conway.show
   conway.tally_neighbors!
   conway.update_cells!
-  sleep(0.1)
+  sleep(0.01)
 end

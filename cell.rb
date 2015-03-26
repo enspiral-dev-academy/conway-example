@@ -7,4 +7,12 @@ class Cell
     @neighbors = 0
   end
 
+  def kill!
+    @alive = false
+  end
+
+  def resurrect!
+    @alive = true
+  end
+
 end
