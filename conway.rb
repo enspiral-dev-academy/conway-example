@@ -68,5 +68,5 @@ loop do
   conway.show
   conway.tally_neighbors!
   conway.update_cells!
-  sleep(0.01)
+  sleep(0.1)
 end
